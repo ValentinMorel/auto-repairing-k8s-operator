@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  kind-manager:
+    build: .
+    container_name: kind-manager
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./kind-config.yaml:/kind-config.yaml
+    entrypoint: >
+      /bin/sh -c "
+      kind create cluster --config=/kind-config.yaml &&
+      tail -f /dev/null
+      "
