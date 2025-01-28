@@ -8,8 +8,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./kind-config.yaml:/kind-config.yaml
-    entrypoint: >
-      /bin/sh -c "
-      kind create cluster --config=/kind-config.yaml &&
-      tail -f /dev/null
-      "
+      - ./scripts:/scripts
+      - ./kubeconfig:/root/.kube/config
+    entrypoint: /bin/sh -c "/scripts/start-kind.sh && tail -f /dev/null"

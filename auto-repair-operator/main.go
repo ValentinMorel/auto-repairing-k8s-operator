@@ -1,23 +1,53 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
+	"time"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 func main() {
+	ctx := context.Background()
 	kubeconfig := filepath.Join("..", "kubeconfig")
 	if _, err := os.Stat(kubeconfig); os.IsNotExist(err) {
-		fmt.Println("kubeconfig file not found")
+		log.Fatal("kubeconfig file not found")
 		return
 	}
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return
 	}
 	fmt.Println(config.Host)
+	client, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	for {
+		time.Sleep(5 * time.Second)
+		fmt.Println("Checking for pods")
+		checkDeployments(ctx, client)
+	}
+}
+
+func checkDeployments(ctx context.Context, client *kubernetes.Clientset) {
+	namespacesToCheck := []string{"default", "kubernetes-dashboard"}
+	for _, namespace := range namespacesToCheck {
+		deployments, err := client.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		for _, deployment := range deployments.Items {
+			fmt.Printf("%s : %s\n", deployment.Namespace, deployment.Name)
+		}
+	}
 }
