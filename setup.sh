@@ -38,10 +38,9 @@ docker cp kind-manager:/root/.kube/config ./kubeconfig
 echo "Current directory: $(pwd)"
 echo "KUBECONFIG value: $(pwd)/kubeconfig"
 
-# Export KUBECONFIG with quotes to handle spaces/special characters
-export KUBECONFIG="$(pwd)/kubeconfig"
+export KUBECONFIG="$(pwd)/auto-repair-operator/kubeconfig"
 
-# Verify the export
+
 echo "KUBECONFIG after export: $KUBECONFIG"
 
 # Variables
