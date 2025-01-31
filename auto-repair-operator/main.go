@@ -15,7 +15,7 @@ import (
 
 func main() {
 	ctx := context.Background()
-	kubeconfig := filepath.Join("..", "kubeconfig")
+	kubeconfig := filepath.Join("kubeconfig")
 	if _, err := os.Stat(kubeconfig); os.IsNotExist(err) {
 		log.Fatal("kubeconfig file not found")
 		return
@@ -48,6 +48,22 @@ func checkDeployments(ctx context.Context, client *kubernetes.Clientset) {
 		}
 		for _, deployment := range deployments.Items {
 			fmt.Printf("%s : %s\n", deployment.Namespace, deployment.Name)
+			pods, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
+				LabelSelector: fmt.Sprintf("app=%s", deployment.Spec.Selector.MatchLabels["app"]),
+			})
+			if err != nil {
+				fmt.Printf("Failed getting pods: %v\n", err)
+				continue
+			}
+			for _, pod := range pods.Items {
+				if pod.Status.Phase == "CrashLoopBackOff" {
+					fmt.Printf("Pod %s en état CrashLoopBackOff, redémarrage...\n", pod.Name)
+					err := client.CoreV1().Pods(namespace).Delete(context.TODO(), pod.Name, metav1.DeleteOptions{})
+					if err != nil {
+						fmt.Printf("Failed deleting pod: %v\n", err)
+					}
+				}
+			}
 		}
 	}
 }
