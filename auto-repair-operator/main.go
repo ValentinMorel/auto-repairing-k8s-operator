@@ -57,7 +57,7 @@ func checkDeployments(ctx context.Context, client *kubernetes.Clientset) {
 			}
 			for _, pod := range pods.Items {
 				if pod.Status.Phase == "CrashLoopBackOff" {
-					fmt.Printf("Pod %s en état CrashLoopBackOff, redémarrage...\n", pod.Name)
+					fmt.Printf("Pod %s in CrashLoopBackOff state, Restarting...\n", pod.Name)
 					err := client.CoreV1().Pods(namespace).Delete(context.TODO(), pod.Name, metav1.DeleteOptions{})
 					if err != nil {
 						fmt.Printf("Failed deleting pod: %v\n", err)
