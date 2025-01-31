@@ -9,5 +9,4 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./kind-config.yaml:/kind-config.yaml
       - ./scripts:/scripts
-      - ./kubeconfig:/root/.kube/config
     entrypoint: /bin/sh -c "/scripts/start-kind.sh && tail -f /dev/null"
