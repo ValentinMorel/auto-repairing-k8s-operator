@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: operator
+  namespace: default
+  labels:
+    app: operator
+spec:
+  replicas: 1  # Nombre de réplicas de l'opérateur
+  selector:
+    matchLabels:
+      app: operator
+  template:
+    metadata:
+      labels:
+        app: operator
+    spec:
+      containers:
+        - name: operator
+          image: operator:latest  # Remplace par le nom de l'image Docker de l'opérateur
+          imagePullPolicy: IfNotPresent
+
+      restartPolicy: Always
